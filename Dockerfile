@@ -1,10 +1,11 @@
 # Stage 1: Frontend bauen (React + Vite)
 FROM node:20 AS frontend
 WORKDIR /app
-COPY package.json package-lock.json* ./
+# Alles kopieren - keine Einzeldatei mehr Pflicht, damit ein fehlendes
+# vite.config.ts / tsconfig.json den Build nicht mehr abbricht
+COPY . ./
+# Falls package-lock.json fehlt, ist das ok - npm install legt es an
 RUN npm install
-COPY index.html vite.config.ts tsconfig.json tailwind.config.js postcss.config.js ./
-COPY src/ ./src/
 RUN npm run build
 
 # Stage 2: Python + Gunicorn, serviert dist/ + API
