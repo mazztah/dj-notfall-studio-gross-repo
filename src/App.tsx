@@ -357,9 +357,9 @@ export default function App(){
     const C=ctxRef.current; if(!C) return; if(pressVoices.current.has(n)) return; const P=synthParamsRef.current; const t=C.currentTime;
     const intervals = chordMode==='major'?[0,4,7]:chordMode==='minor'?[0,3,7]:chordMode==='7th'?[0,4,7,10]:chordMode==='sus'?[0,5,7]:chordMode==='power'?[0,7]:[0];
     intervals.forEach((iv)=>{ const nn=n+iv; const f=130.81*2**((nn+12*Math.round(P.oct))/12); const g=C.createGain(); const fl=C.createBiquadFilter(); const os:OscillatorNode[]=[];
-      const mk=(type:OscillatorType,det:number,mix:number)=>{ if(type==='noise') return null; const o=C.createOscillator(); o.type=type==='pulse'?'square':type; o.frequency.value=f; o.detune.value=det; const og=C.createGain(); og.gain.value=mix; o.connect(og); og.connect(fl); o.start(); os.push(o); return o; };
+      const mk=(type:OscillatorType,det:number,mix:number)=>{ if((type as string)==='noise') return null; const o=C.createOscillator(); o.type=(type as string)==='pulse'?'square':type; o.frequency.value=f; o.detune.value=det; const og=C.createGain(); og.gain.value=mix; o.connect(og); og.connect(fl); o.start(); os.push(o); return o; };
       mk(P.wave,0,1-P.mix); mk(P.wave2,P.det2,P.mix); mk(P.wave3,P.det3,P.mix3);
-      if(P.wave==='noise'||P.wave2==='noise'){ const src=C.createBufferSource(); src.buffer=makeNoise(C,noiseCache.current); src.loop=true; const ng=C.createGain(); ng.gain.value=.4; src.connect(ng); ng.connect(fl); src.start(); }
+      if((P.wave as string)==='noise'||(P.wave2 as string)==='noise'){ const src=C.createBufferSource(); src.buffer=makeNoise(C,noiseCache.current); src.loop=true; const ng=C.createGain(); ng.gain.value=.4; src.connect(ng); ng.connect(fl); src.start(); }
       if(P.unison>1){ for(let u=0;u<P.unison;u++){ const o=C.createOscillator(); o.type='sawtooth'; o.frequency.value=f; o.detune.value=(u-(P.unison-1)/2)*12; o.connect(fl); o.start(); os.push(o); } }
       if(P.sub>0){ const o=C.createOscillator(); const sg=C.createGain(); sg.gain.value=P.sub; o.frequency.value=f/2; o.connect(sg); sg.connect(fl); o.start(); os.push(o); }
       fl.type=P.filterType; fl.Q.value=P.res; const pk=Math.min(18000,P.cut*2**(P.env*5)), sus=P.cut+(pk-P.cut)*P.s;
